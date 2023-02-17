@@ -1,15 +1,49 @@
-import Search from "./Search";
+import React, { useState } from "react";
+import { connect } from "react-redux";
 
-function Home() {
+import { searchSongs } from "../services/api";
+import { selectSong } from "../actions/searchActions";
+
+import Song from "./Song";
+
+const HomePage = ({ searchResults, searchSongs, selectSong }) => {
+  const [query, setQuery] = useState("");
+
+  const handleSearch = () => {
+    searchSongs(query);
+  };
+
+  const handleSongSelect = (song) => {
+    selectSong(song);
+  };
+
   return (
     <div>
-      <h1>Welcome to my Spotify app</h1>
-      <Search />
+      <div>
+        <input
+          type="text"
+          placeholder="Search for a song"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+        />
+        <button onClick={handleSearch}>Search</button>
+      </div>
+      <div>
+        {searchResults.map((song) => (
+          <Song key={song.id} song={song} onSelect={handleSongSelect} />
+        ))}
+      </div>
     </div>
   );
-}
+};
 
-export default Home;
-// Set up your React app and create a homepage component with a search bar input and a button.
-// Install the Spotify API package, and use it to make a search query when the button is clicked.
-// Save the search results in the Redux store for later use.
+const mapStateToProps = (state) => ({
+  searchResults: state.search.results,
+});
+
+const mapDispatchToProps = {
+  searchSongs,
+  selectSong,
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(HomePage);
