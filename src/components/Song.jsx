@@ -1,48 +1,34 @@
-import React from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { addSongToPlaylist } from "../actions/playlistActions";
-import { likeSong } from "../actions/searchActions";
+import { HeartFill, Heart } from "react-bootstrap-icons";
+import { useSelector, useDispatch } from "react-redux";
+import { addLike, removeLike } from "../redux/actions";
 
-const Song = ({ song }) => {
+const Song = ({ track }) => {
+  const songs = useSelector((state) => state.songs);
+
   const dispatch = useDispatch();
-  const { currentPlaylist, likedSongs } = useSelector((state) => state.song);
 
-  const isLiked = likedSongs.includes(song.id);
+  const isLike = songs.includes(track.title);
 
-  const handleAddToPlaylist = (playlistId) => {
-    dispatch(addSongToPlaylist(playlistId, song));
+  const toggleLike = () => {
+    isLike ? dispatch(removeLike(track.title)) : dispatch(addLike(track.title));
   };
-
-  const handleLike = () => {
-    dispatch(likeSong(song.id));
-  };
-
   return (
-    <div className="song">
-      <img src={song.album.cover} alt={song.title} />
-      <div className="song-details">
-        <h2>{song.title}</h2>
-        <h3>{song.artist.name}</h3>
-        <p>Album: {song.album.title}</p>
-        <p>Duration: {song.duration}</p>
-      </div>
-      <div className="song-actions">
-        {currentPlaylist && (
-          <select
-            value={currentPlaylist._id}
-            onChange={(e) => handleAddToPlaylist(e.target.value)}
-          >
-            <option value="" disabled>
-              Add to playlist
-            </option>
-            <option value="queue">Playing queue</option>
-            <option value="favorites">Favorites</option>
-          </select>
-        )}
-        <button className={isLiked ? "liked" : ""} onClick={handleLike}>
-          Like
-        </button>
-      </div>
+    <div className="py-3 trackHover">
+      {isLike ? (
+        <HeartFill color="red" onClick={toggleLike} />
+      ) : (
+        <Heart color="white" onClick={toggleLike} />
+      )}
+
+      <span className="card-title trackHover px-3" style={{ color: "white" }}>
+        {track.title}
+      </span>
+      <small className="duration" style={{ color: "white" }}>
+        {Math.floor(parseInt(track.duration) / 60)}:
+        {parseInt(track.duration) % 60 < 10
+          ? "0" + (parseInt(track.duration) % 60)
+          : parseInt(track.duration) % 60}
+      </small>
     </div>
   );
 };
